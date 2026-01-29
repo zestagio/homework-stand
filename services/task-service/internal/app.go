@@ -54,6 +54,7 @@ type App struct {
 
 	started    int32
 	terminated int32
+	cordoned   int32
 
 	// обработчик health check probe
 	healthCheck healthcheck.Handler
@@ -79,14 +80,6 @@ func New(ctx context.Context) *App {
 	if err != nil {
 		log.Fatalf("[APP] Не удалось инициализировать приложение: %s", err.Error())
 	}
-
-	// Петя решил тут подгрузить файл
-	go func() {
-		err = app.storages.Category.LoadCategories(ctx, config.Instance().Categories.FilePath)
-		if err != nil {
-			slog.Error(fmt.Sprintf("error while loading categories: %s", err.Error()))
-		}
-	}()
 
 	return app
 }
@@ -147,6 +140,7 @@ func (a *App) init(ctx context.Context) error {
 		a.initServices,
 		a.initMainServer,
 		a.initControllers,
+		a.initCategories,
 	}
 
 	for _, f := range initFuncs {

@@ -61,10 +61,6 @@ func (a *App) initStorages(ctx context.Context) error {
 	if a.storages == nil {
 		a.storages = storage.NewRegistry(a.pool)
 	}
-
-	// TODO: тут я хочу убедиться,что данные по категориям успешно инициализированы.
-	//  После этого приложение может стартовать
-	// Но какому типу пробы подходит эта задача?
 	return nil
 }
 
@@ -79,6 +75,24 @@ func (a *App) initGateways(_ context.Context) error {
 	if a.gateways == nil {
 		a.gateways = gateway.NewRegistry(a.grpcConn)
 	}
+	return nil
+}
+
+func (a *App) initCategories(_ context.Context) error {
+	go func() {
+		err := a.storages.Category.LoadCategories(context.Background(), config.Instance().Categories.FilePath)
+		if err != nil {
+			slog.Error(fmt.Sprintf("error while loading categories: %s", err.Error()))
+		}
+	}()
+
+	a.healthCheck.AddReadinessCheck("categories-init", func() error {
+		if a.storages.Category.IsLoaded() {
+			return nil
+		}
+		return fmt.Errorf("categories not loaded")
+	})
+
 	return nil
 }
 
@@ -174,10 +188,17 @@ func (a *App) initHealthCheck(_ context.Context) error {
 	})
 
 	a.adminMux.Post("/cordon", func(writer http.ResponseWriter, request *http.Request) {
-		// TODO: как я могу вывести мой под из балансировки тут? Что делать?
+		atomic.StoreInt32(&a.cordoned, 1)
 	})
 	a.adminMux.Post("/uncordon", func(writer http.ResponseWriter, request *http.Request) {
-		// TODO: как я могу ввести мой под в балансировку тут? Что делать?
+		atomic.StoreInt32(&a.cordoned, 0)
+	})
+
+	a.healthCheck.AddReadinessCheck("cordon", func() error {
+		if atomic.LoadInt32(&a.cordoned) == 0 {
+			return nil
+		}
+		return fmt.Errorf("application is cordoned")
 	})
 
 	a.healthCheck.AddReadinessCheck("termination", func() error {
