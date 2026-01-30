@@ -78,9 +78,9 @@ func (a *App) initGateways(_ context.Context) error {
 	return nil
 }
 
-func (a *App) initCategories(_ context.Context) error {
+func (a *App) initCategories(ctx context.Context) error {
 	go func() {
-		err := a.storages.Category.LoadCategories(context.Background(), config.Instance().Categories.FilePath)
+		err := a.storages.Category.LoadCategories(ctx, config.Instance().Categories.FilePath)
 		if err != nil {
 			slog.Error(fmt.Sprintf("error while loading categories: %s", err.Error()))
 		}
