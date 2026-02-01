@@ -7,6 +7,7 @@ import (
 	"strings"
 	"sync"
 
+	"profile-service/internal/pkg/circuit"
 	"profile-service/internal/pkg/timeout"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -32,6 +33,8 @@ type Config struct {
 	Cache        Cache        `yaml:"cache"`
 
 	ExternalTimeouts timeout.ServiceClientSettings `yaml:"external_timeouts"`
+
+	Circuit circuit.Config `yaml:"circuit"`
 
 	Graceful Graceful          `yaml:"graceful"`
 	Targets  map[string]string `yaml:"service"`
