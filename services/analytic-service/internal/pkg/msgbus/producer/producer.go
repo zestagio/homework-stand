@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
-	"task-service/internal/pkg/connector/kafka"
-	"task-service/internal/pkg/event"
+	"analytic-service/internal/pkg/connector/kafka"
+	"analytic-service/internal/pkg/event"
 
 	"github.com/IBM/sarama"
 	"github.com/samber/lo"
@@ -23,7 +23,7 @@ func (m *MessageProducer) Close() error {
 	return m.producer.Close()
 }
 
-func (m *MessageProducer) Handle(_ context.Context, events event.Events) error {
+func (m *MessageProducer) Flush(_ context.Context, events event.Events) error {
 	return m.producer.SendMessages(lo.Map(events, func(msg event.Event, _ int) *sarama.ProducerMessage {
 		return &sarama.ProducerMessage{
 			Topic:   msg.Schema,

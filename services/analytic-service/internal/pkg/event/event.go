@@ -3,7 +3,7 @@ package event
 import (
 	"context"
 
-	"task-service/internal/pkg/pipe"
+	"analytic-service/internal/pkg/pipe"
 )
 
 // Raw бинарное представление содержимого
