@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"runtime"
 	"sync/atomic"
-	"task-service/internal/pkg/worker"
 	"time"
 
 	"task-service/config"
@@ -24,6 +23,7 @@ import (
 	"task-service/internal/pkg/healthcheck"
 	"task-service/internal/pkg/outbox"
 	taskV1 "task-service/internal/pkg/pb/task-service/task/v1"
+	"task-service/internal/pkg/worker"
 
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
