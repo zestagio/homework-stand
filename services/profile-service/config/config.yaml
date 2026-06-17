@@ -15,6 +15,26 @@ http_server:
 external_timeouts:
   default:
     timeout: 5s
+  services:
+    analytic-service:
+      handlers:
+        /analytic_service.order.v1.AnalyticService/GetUserTaskCount:
+          timeout: 30ms
+
+circuit:
+  separate_circuit_per_handler_enabled: true
+  handlers:
+    - method: "/analytic_service.order.v1.AnalyticService/GetUserTaskCount"
+      enabled: true
+      max_requests: 6
+      timeout: 30s
+      interval: 1m
+      bucket_period: 10s
+      threshold_consecutive: 3
+      threshold_percentage: 35
+      failure_codes:
+        - DeadlineExceeded
+        - Unavailable
 
 postgres:
   host: profile-postgres
@@ -47,4 +67,3 @@ redis_cluster:
   dial_timeout: 10s
   read_timeout: 3s
   write_timeout: 3s
-

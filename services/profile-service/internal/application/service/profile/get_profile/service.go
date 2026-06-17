@@ -2,9 +2,14 @@ package get_profile
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"log/slog"
 
 	"profile-service/internal/domain/entity"
 )
+
+var errGetProfile = errors.New("get profile")
 
 type ProfileProvider interface {
 	GetProfile(ctx context.Context, userID int64) (*entity.Profile, error)
@@ -33,7 +38,7 @@ func (s *Service) GetProfile(ctx context.Context, userID int64) (*entity.Profile
 	// получаем кол-во задач
 	taskCount, err := s.taskProvider.GetUserTaskCount(ctx, userID)
 	if err != nil {
-		return nil, err
+		slog.Error(fmt.Sprintf("%v: %v", errGetProfile, err))
 	}
 
 	profile.WithTariff(taskCount)
