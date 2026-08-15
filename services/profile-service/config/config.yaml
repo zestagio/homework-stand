@@ -26,6 +26,14 @@ retry:
         throttle_max_tokens: 20
         throttle_token_ratio: 0.2
 
+rate_limit:
+  rules:
+    - clients: ["task-service"]
+      handlers: ["/profile_service.order.v1.ProfileService/CheckPermission"]
+      limit: 40
+      burst: 45
+      timeout: 50ms
+
 postgres:
   host: profile-postgres
   port: 5432
