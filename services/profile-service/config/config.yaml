@@ -12,6 +12,28 @@ grpc_server:
 http_server:
   port: 8082
 
+retry:
+  separate_retry_per_handler_enabled: true
+  handlers:
+    - method: "/analytic_service.order.v1.AnalyticService/GetUserTaskCount"
+      enabled: true
+      max_attempts: 6
+      initial_backoff: 5ms
+      max_backoff: 100ms
+      backoff_multiplier: 2
+      throttler:
+        throttling_enabled: true
+        throttle_max_tokens: 20
+        throttle_token_ratio: 0.2
+
+rate_limit:
+  rules:
+    - clients: ["task-service"]
+      handlers: ["/profile_service.order.v1.ProfileService/CheckPermission"]
+      limit: 40
+      burst: 45
+      timeout: 50ms
+
 postgres:
   host: profile-postgres
   port: 5432
@@ -43,4 +65,3 @@ redis_cluster:
   dial_timeout: 10s
   read_timeout: 3s
   write_timeout: 3s
-
